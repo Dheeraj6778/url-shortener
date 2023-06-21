@@ -7,7 +7,7 @@ function App() {
   const [url, setUrl] = useState("");
   const [urlData, setUrlData] = useState([]);
   const [click, setClick] = useState(0);
-  const [href,setHref]=useState("");
+  let [data, setData] = useState([]);
   let handleSubmit = async (event) => {
     event.preventDefault();
     try {
@@ -26,6 +26,7 @@ function App() {
       console.log("inside fetch data");
       let resp = await axios.get("http://localhost:3001/getData");
       setUrlData(resp.data);
+      setData(resp.data);
     } catch (err) {
       console.log("error in fetching data");
     }
@@ -36,20 +37,44 @@ function App() {
     try {
       let url_ = "http://" + event.target.innerText;
       console.log("url_ ", url_);
-      setHref(url_);
+      setClick((prev) => prev + 1);
+      window.open(url_);
+
       //let resp = await axios.get(url_);
     } catch (err) {
       console.log("unable to redirect");
     }
   };
-
+  let handleSort = (parameter, sortType) => {
+    console.log(parameter, sortType);
+    if (parameter === "clicks" && sortType === "asc") {
+      data.sort((a, b) => a.clicks - b.clicks);
+      setData(data);
+    }
+    if (parameter === "clicks" && sortType === "dsc") {
+      data.sort((a, b) => b.clicks - a.clicks);
+      setData(data);
+    }
+    if (parameter === "date_added" && sortType === "asc") {
+      data.sort((a, b) => a.date_added.localeCompare(b.date_added));
+      setData(data);
+    }
+    if (parameter === "date_added" && sortType === "dsc") {
+      data.sort((a, b) => b.date_added.localeCompare(a.date_added));
+      setData(data);
+    }
+    console.log(data);
+    setClick((prev) => prev + 1);
+  };
   useEffect(() => {
-    fetchData();
+    
   }, [click]);
   return (
     <div>
       <Url setUrl={setUrl} handleSubmit={handleSubmit} />
+
       <div className="container col-6">
+        <button onClick={fetchData} className="btn btn-secondary">fetch data</button>
         <table class="table table-striped">
           <thead>
             <tr>
@@ -62,16 +87,40 @@ function App() {
               <th className="col-2" scope="col">
                 Shortened Url
               </th>
-              <th className="col-1" scope="col">
-                Clicks
+              <th className="col-2" scope="col">
+                Clicks{" "}
+                <button
+                  onClick={() => handleSort("clicks", "asc")}
+                  className="btn btn-sm btn-secondary"
+                >
+                  ↑
+                </button>{" "}
+                <button
+                  onClick={() => handleSort("clicks", "dsc")}
+                  className="btn btn-sm btn-secondary"
+                >
+                  ↓
+                </button>
               </th>
               <th className="col-2" scope="col">
-                Date Added
+                Date Added{" "}
+                <button
+                  onClick={() => handleSort("date_added", "asc")}
+                  className="btn btn-sm btn-secondary"
+                >
+                  ↑
+                </button>{" "}
+                <button
+                  onClick={() => handleSort("date_added", "dsc")}
+                  className="btn btn-sm btn-secondary"
+                >
+                  ↓
+                </button>
               </th>
             </tr>
           </thead>
           <tbody>
-            {urlData.map((elem, index) => (
+            {data.map((elem, index) => (
               <tr>
                 <th scope="row">{index + 1}</th>
                 <td
