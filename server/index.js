@@ -32,7 +32,7 @@ function shortenUrl(originalUrl) {
 }
 
 app.get("/", (req, res) => {
-  res.send("hello");
+  res.send("hello");//for testing purpose
 });
 
 app.post("/createUrl", async (req, res) => {
