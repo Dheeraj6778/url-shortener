@@ -7,6 +7,7 @@ function App() {
   const [url, setUrl] = useState("");
   const [urlData, setUrlData] = useState([]);
   const [click, setClick] = useState(0);
+  const [href,setHref]=useState("");
   let handleSubmit = async (event) => {
     event.preventDefault();
     try {
@@ -31,13 +32,13 @@ function App() {
   };
   let handleClick = async (event) => {
     console.log(event.target.innerText);
-    
-    try{
-      let url_=event.target.innerText;
-      let resp=await axios.get(url_);
-      console.log(resp);
-    }
-    catch(err){
+
+    try {
+      let url_ = "http://" + event.target.innerText;
+      console.log("url_ ", url_);
+      setHref(url_);
+      //let resp = await axios.get(url_);
+    } catch (err) {
       console.log("unable to redirect");
     }
   };
@@ -87,9 +88,9 @@ function App() {
                 <td>
                   <button
                     onClick={(event) => handleClick(event)}
-                    className="btn btn-secondary"
+                    className="btn"
                   >
-                    {elem.shortened_url}
+                    <a href>{elem.shortened_url}</a>
                   </button>
                 </td>
                 <td>{elem.clicks}</td>

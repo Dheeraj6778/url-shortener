@@ -9,14 +9,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-
 //connect to db
 let db = require("./config/database");
 db.connect();
 
 //import Url from model
-let {Url}=require('./model/url');
-
+let { Url } = require("./model/url");
 
 function getDate() {
   let today = new Date();
@@ -47,7 +45,7 @@ app.post("/createUrl", async (req, res) => {
     //     return res.status(409).send("url already exists");
     // }
     let date = getDate();
-    let shortened_url=shortenUrl(url);
+    let shortened_url = shortenUrl(url);
     let obj = {
       full_url: url,
       shortened_url,
@@ -55,11 +53,11 @@ app.post("/createUrl", async (req, res) => {
       clicks: 0,
     };
     console.log(obj);
-    let urlObj=await Url.create({
-        full_url:url,
-        shortened_url,
-        date_added: date,
-        clicks: 0
+    let urlObj = await Url.create({
+      full_url: url,
+      shortened_url,
+      date_added: date,
+      clicks: 0,
     });
 
     return res.status(201).json(urlObj);
@@ -70,12 +68,32 @@ app.post("/createUrl", async (req, res) => {
 });
 app.get("/getData", async (req, res) => {
   console.log("get data");
-  try{
-    let data=await Url.find({});
+  try {
+    let data = await Url.find({});
     res.json(data);
-  }
-  catch(err){
+  } catch (err) {
     console.log("error in fetching data from db");
+  }
+});
+
+app.get("/:id", async (req, res) => {
+  try {
+    let id = req.params.id;
+    console.log("id is ", id);
+    if (!id) {
+      return res.send("url not found");
+    }
+    let currUrl = `localhost:3001/${id}`;
+    console.log("currUrl is ", currUrl);
+    let obj = await Url.findOne({ shortened_url: currUrl });
+    console.log("object is ", obj);
+    if (!obj) {
+      return res.status(404).send("url not found");
+    }
+    let result = await Url.updateOne({ _id: obj._id},{clicks: obj.clicks+1});
+    return res.redirect(obj.full_url);
+  } catch (err) {
+    console.log("error in redirecting");
   }
 });
 
